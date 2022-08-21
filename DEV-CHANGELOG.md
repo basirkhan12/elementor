@@ -1,5 +1,14 @@
 # Elementor Developer Edition - by Elementor.com
 
+#### 3.8.0-dev4 - 2022-08-21
+* Fix: Default Flex Grow affects the layout [ed-7869] (#19437)
+* Fix: Widget width is not working as expected (#19398) [ed-7915] (#19438)
+* Fix: Kit sort select doesn't change from asc to desc [ED-7976] (#19490)
+* Fix: Background Fallback image is hiding the background video in Container [ED-7944] (#19499)
+* Fix: Motion Effects in Column in any Theme Builder template prevents Editor from loading [ED-7943] (#19435)
+* Fix: Admin Menu Manager not working as expected [ED-7989] (#19517)
+* Fix: Importing fails when post type file is missing [ED-8002] (#19518)
+
 #### 3.8.0-dev3 - 2022-08-15
 * Fix: Notes - Promotion dialog not opening in Panel menu [ED-7744] (#19192)
 * Fix: Align notices to RTL sites [ED-4809] (#19337)
@@ -422,19 +431,3 @@
 
 #### 3.5.0-dev41 - 2021-10-15
 * Tweak: Adding styled-components infrastructure [ED-4561] (#16414)
-
-#### 3.5.0-dev40 - 2021-10-14
-* Tweak: Eicons to SVG [ED-2650] (#15897)
-* Fix: Header Handle - handles don't show up [ED-1628] (#15700)
-* Tweak: Removing a temporary BC support. (#16421)
-* Tweak: Added a quick Apply Kit option using a popup modal in Kit Library [ED-4049] (#16492)
-* Fix: Cleanup API info + `autoload=no` and  delete 'elementor_scheme_%'. [ED-3204] (#15755)
-
-#### 3.5.0-dev39 - 2021-10-13
-* Tweak: Updated changelog to v3.4.5 (#16553)
-* Fix: Merge release/3.5.0 into feature/default-values (#16561)
-* Tweak: Made placeholder values clearer in controls with CSS units [ED-4841] (#16488)
-* Tweak: Hide the Archive Posts and Archive Title widgets from panel search results when not relevant [ED-4983] (#16486)
-* Tweak: System Info - New experiments reporter [ED-1938] (#14800)
-* Tweak: Added shortkey to panel tooltips [ED-4220] (#16478)
-* Tweak: Default-Values - Loader on default values save [ED-4925] (#16212)
