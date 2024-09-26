@@ -12,6 +12,7 @@ export class ContainerHelper {
 	static DIRECTION_ROW_REVERSED = 'row-reverse';
 	static DIRECTION_COLUMN_REVERSED = 'column-reverse';
 	static DIRECTION_DEFAULT = this.DIRECTION_COLUMN;
+	static CONTAINER_TYPE_GRID = 'grid';
 
 	/**
 	 * Create multiple container elements.
@@ -201,7 +202,14 @@ export class ContainerHelper {
 
 					const rightContainer = ContainerHelper.createContainer( {
 						...settings,
-						padding: { size: '' }, // Create the right Container with 0 padding (default is 10px) to fix UI (ED-4900).
+						padding: {
+							unit: 'px',
+							top: 0,
+							right: 0,
+							bottom: 0,
+							left: 0,
+							isLinked: true,
+						}, // Create the right Container with 0 padding (default is 10px).
 						flex_gap: {
 							unit: 'px',
 							size: 0, // Set the gap to 0 to override the default inherited from `Site Settings`.

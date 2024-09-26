@@ -108,6 +108,10 @@ ControlsCSSParser = elementorModules.ViewModule.extend( {
 				}
 			} else {
 				try {
+					if ( this.unitHasCustomSelector( control, value ) ) {
+						cssProperty = control.unit_selectors_dictionary[ value.unit ];
+					}
+
 					outputCssProperty = cssProperty.replace( /{{(?:([^.}]+)\.)?([^}| ]*)(?: *\|\| *(?:([^.}]+)\.)?([^}| ]*) *)*}}/g, ( originalPhrase, controlName, placeholder, fallbackControlName, fallbackValue ) => {
 						const externalControlMissing = controlName && ! controls[ controlName ];
 
@@ -145,6 +149,10 @@ ControlsCSSParser = elementorModules.ViewModule.extend( {
 
 						if ( 'font' === control.type ) {
 							elementor.helpers.enqueueFont( parsedValue );
+						}
+
+						if ( '__EMPTY__' === parsedValue ) {
+							parsedValue = '';
 						}
 
 						return parsedValue;
@@ -209,9 +217,20 @@ ControlsCSSParser = elementorModules.ViewModule.extend( {
 		} );
 	},
 
+	unitHasCustomSelector( control, value ) {
+		return control.unit_selectors_dictionary && undefined !== control.unit_selectors_dictionary[ value.unit ];
+	},
+
 	parsePropertyPlaceholder( control, value, controls, values, placeholder, parserControlName ) {
 		if ( parserControlName ) {
-			control = _.findWhere( controls, { name: parserControlName } );
+			if ( control.responsive && controls[ parserControlName ] ) {
+				const deviceSuffix = elementor.conditions.getResponsiveControlDeviceSuffix( control.responsive );
+
+				control = _.findWhere( controls, { name: parserControlName + deviceSuffix } ) ??
+					_.findWhere( controls, { name: parserControlName } );
+			} else {
+				control = _.findWhere( controls, { name: parserControlName } );
+			}
 
 			value = this.getStyleControlValue( control, values );
 		}

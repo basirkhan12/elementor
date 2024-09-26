@@ -1,81 +1,55 @@
-const { test, expect } = require( '@playwright/test' );
-const WpAdminPage = require( '../pages/wp-admin-page.js' );
-const widgetsCache = require( '../assets/widgets-cache' );
-const controlsTestConfig = require( '../assets/controls-test-config' );
+import { expect, test } from '@playwright/test';
+import _path from 'path';
+import WpAdminPage from '../../playwright/pages/wp-admin-page';
+import EditorPage from '../../playwright/pages/editor-page';
+import EditorSelectors from '../../playwright/selectors/editor-selectors';
+import { createDefaultMedia, deleteDefaultMedia } from '../../playwright/assets/api-requests';
 
-const {
-	Heading,
-	WidgetBase,
-} = require( '../utils/widgets' );
+const imageIds = [];
+const image2 = {
+	title: 'image2',
+	extension: 'jpg',
+};
 
-const {
-	Choose,
-	Select,
-	Textarea,
-} = require( '../utils/controls' );
+test.describe( 'Elementor regression tests with templates for CORE', () => {
+	test.beforeAll( async ( { browser, request }, testInfo ) => {
+		const context = await browser.newContext();
+		const page = await context.newPage();
+		const wpAdmin = new WpAdminPage( page, testInfo );
+		imageIds.push( await createDefaultMedia( request, image2 ) );
+		await wpAdmin.setExperiments( {
+			container: 'active',
+		} );
+	} );
 
-const { Registrar } = require( '../utils/registrar' );
+	const testData = [ 'divider', 'heading', 'text_editor', 'button', 'image' ];
+	for ( const widgetType of testData ) {
+		test( `Test ${ widgetType } template`, async ( { page }, testInfo ) => {
+			const filePath = _path.resolve( __dirname, `./templates/${ widgetType }.json` );
 
-test( 'All widgets sanity test @regression', async ( { page }, testInfo ) => {
-	// Arrange.
-	const wpAdmin = new WpAdminPage( page, testInfo ),
-		editor = await wpAdmin.useElementorCleanPost();
+			const wpAdminPage = new WpAdminPage( page, testInfo );
+			const editorPage = new EditorPage( page, testInfo );
+			await wpAdminPage.openNewPage();
+			await editorPage.closeNavigatorIfOpen();
+			await editorPage.loadTemplate( filePath );
 
-	const navigatorCloseButton = await page.$( '#elementor-navigator__close' );
-
-	if ( navigatorCloseButton ) {
-		await navigatorCloseButton.click();
-	}
-
-	const widgetsRegistrar = new Registrar()
-		.register( Heading )
-		.register( WidgetBase );
-
-	const controlsRegistrar = new Registrar()
-		.register( Choose )
-		.register( Select )
-		.register( Textarea );
-
-	for ( const widgetType of Object.keys( widgetsCache ) ) {
-		const WidgetClass = widgetsRegistrar.get( widgetType );
-
-		/**
-		 * @type {WidgetBase}
-		 */
-		const widget = new WidgetClass(
-			editor,
-			controlsRegistrar,
-			{
-				widgetType,
-				controls: widgetsCache[ widgetType ].controls,
-				controlsTestConfig: controlsTestConfig[ widgetType ] || {},
-			},
-		);
-
-		// Act.
-		await widget.create();
-
-		await page.waitForTimeout( 500 );
-
-		const element = await widget.getElement();
-
-		// Assert - Match snapshot for default appearance.
-		expect( await element.screenshot( {
-			type: 'jpeg',
-			quality: 70,
-		} ) ).toMatchSnapshot( [ widgetType, 'default.jpeg' ] );
-
-		await widget.test( async ( controlId, currentControlValue ) => {
-			// Skip default values.
-			if ( [ '', 'default' ].includes( currentControlValue ) ) {
-				return;
+			const widgetCount = await editorPage.getWidgetCount();
+			const widgetIds = [];
+			for ( let i = 0; i < widgetCount; i++ ) {
+				const widget = editorPage.getWidget().nth( i );
+				const id = await widget.getAttribute( 'data-id' );
+				widgetIds.push( id );
+				await editorPage.waitForElementRender( id );
+				await expect( widget ).toHaveScreenshot( `${ widgetType }_${ i }.png`, { maxDiffPixels: 100 } );
 			}
-
-			// Assert - Match snapshot for specific control.
-			expect( await element.screenshot( {
-				type: 'jpeg',
-				quality: 70,
-			} ) ).toMatchSnapshot( [ widgetType, controlId, `${ currentControlValue }.jpeg` ] );
+			await editorPage.publishAndViewPage();
+			await editorPage.waitForElementRender( widgetIds[ 0 ] );
+			await expect( page.locator( EditorSelectors.container ) ).toHaveScreenshot( `${ widgetType }_published.png`, { maxDiffPixels: 100 } );
 		} );
 	}
+
+	test.afterAll( async ( { request } ) => {
+		await deleteDefaultMedia( request, imageIds );
+	} );
 } );
+

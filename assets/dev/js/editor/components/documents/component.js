@@ -2,6 +2,7 @@ import ComponentBase from 'elementor-api/modules/component-base';
 import Document from './document';
 import * as commands from './commands/';
 import * as internalCommands from './commands/internal/';
+import * as hooks from './hooks';
 
 export default class Component extends ComponentBase {
 	__construct( args = {} ) {
@@ -30,6 +31,10 @@ export default class Component extends ComponentBase {
 
 	defaultCommands() {
 		return this.importCommands( commands );
+	}
+
+	defaultHooks() {
+		return this.importHooks( hooks );
 	}
 
 	defaultCommandsInternal() {
@@ -104,6 +109,10 @@ export default class Component extends ComponentBase {
 	 */
 	getCurrentId() {
 		return this.currentDocument.id;
+	}
+
+	getInitialId() {
+		return elementor.config.initial_document.id;
 	}
 
 	/**

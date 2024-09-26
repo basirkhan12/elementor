@@ -1,4 +1,4 @@
-import AddSectionBase	from 'elementor-views/add-section/base';
+import AddSectionBase from 'elementor-views/add-section/base';
 
 var ContextMenu = require( 'elementor-editor-utils/context-menu' );
 
@@ -45,7 +45,10 @@ module.exports = Marionette.Behavior.extend( {
 				actions: [
 					{
 						name: 'navigator',
-						title: __( 'Navigator', 'elementor' ),
+						icon: 'eicon-navigator',
+						title: elementorCommon.config.experimentalFeatures.editor_v2
+							? __( 'Structure', 'elementor' )
+							: __( 'Navigator', 'elementor' ),
 						callback: () => $e.route( 'navigator', {
 							reOpen: true,
 							model: this.view.model,
